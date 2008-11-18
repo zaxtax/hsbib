@@ -30,40 +30,29 @@ quo p = do {char '"'; res <- p; char '"'; return res}
 white :: Parser ()
 white = skipMany (space <|> newline);
 
-fval2 :: String -> Parser String
-fval2 s = do
+fval :: String -> Parser String
+fval s = do
   c <- noneOf s
   case c of
-    '{'  -> do co <- fval2 "}"
+    '{'  -> do co <- fval "}"
                char '}'
-               cs <- fval2 s
+               cs <- fval s
                return $ co++cs
-    '"'  -> do co <- fval2 "\""
+    '"'  -> do co <- fval "\""
                char '"'
-               cs <- fval2 s
+               cs <- fval s
                return $ co++cs
-    '\\' -> do { try $ char '"'; cs <- fval2 s; return ('"':cs)}
-           <|> do {cs <- fval2 s; return (c:cs)}
-    _    -> do {cs <- fval2 s; return (c:cs)}
+    '\\' -> do { try $ char '"'; cs <- fval s; return ('"':cs)}
+           <|> do {cs <- fval s; return (c:cs)}
+    _    -> do {cs <- fval s; return (c:cs)}
   <|> return ""
-
---     braces lexer (fval2 "}") <|>
---           quo (fval2 "\"") <|>
---           (try (do char '\\'; char '"') 
---           <|> (noneOf s))
-
-fval :: String -> Parser String
-fval s = braces lexer (fval "}") <|>
-         quo (fval "\"") <|>
-         many1 (try (do char '\\'; char '"') 
-                <|> (noneOf s))
      
 field :: Parser (String,String)
 field  = do 
   white
   key <- many1 alphaNum; skipMany space;
   char '='; skipMany space
-  val <- fval2 ",\n}"
+  val <- fval ",\n}"
   white
   return (key,val)
 
