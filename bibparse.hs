@@ -13,16 +13,6 @@ run p input
             Left err -> do{ putStr "parse error at "; print err}
             Right x  -> print x
 
-word    :: Parser String
-word    = many1 alphaNum <?> "word"
-
-word'    :: Parser String
-word'    = do {c <- letter;
-               do cs <- word'
-                  return (c:cs) 
-               <|> return [c]
-              }
-
 lexer   = makeTokenParser haskellDef
 
 quo p = do {char '"'; res <- p; char '"'; return res} 
