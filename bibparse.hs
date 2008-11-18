@@ -13,6 +13,9 @@ run p input
             Left err -> do{ putStr "parse error at "; print err}
             Right x  -> print x
 
+word    :: Parser String
+word    = many1 alphaNum <?> "word"
+
 lexer   = makeTokenParser haskellDef
 
 quo p = do {char '"'; res <- p; char '"'; return res} 
@@ -60,5 +63,5 @@ entry = do
   return (title,cont)
 
 bibfile = do {white; sepBy1 entry white}
-
+ 
 test = parseFromFile bibfile "/home/cf/papers/papers.bib"
