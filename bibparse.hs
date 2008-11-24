@@ -4,9 +4,6 @@ import Text.ParserCombinators.Parsec
 import Text.Parsec.Token
 import Text.Parsec.Language (haskellDef)
 
--- Just to show it works
--- main = (putStrLn . show . product) [1..10]
-
 run :: Show a => Parser a -> String -> IO ()
 run p input
         = case (parse p "" input) of
@@ -49,18 +46,18 @@ field  = do
   white
   return (key,val)
 
-fields :: Parser [(String,String)]
+fields :: Parser (String,[(String,String)])
 fields = do 
   key <- many1 (alphaNum <|> oneOf "/_:-")
   white; char ','; white
   rest <- sepBy1 field (char ',')
-  return $ ("key",key):rest          
+  return $ (key,rest)          
 
 entry :: Parser (String,[(String,String)])
 entry = do 
   char '@'; title <- word; white
-  cont <- braces lexer fields
-  return (title,cont)
+  (key,cont) <- braces lexer fields
+  return (key,("doctype",title):cont)
 
 bibfile = do {white; sepBy1 entry white}
  
