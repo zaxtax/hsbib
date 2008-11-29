@@ -64,10 +64,9 @@ entry = do
 
 bibfile = do {white; sepBy1 entry white}
  
-test =  (parseFromFile bibfile "/home/javirosa/papers/papers.bib")
-
+test3 =  parseFromFile bibfile "/home/cf/papers/papers.bib"
 testPretty = do 
-  out <- test
+  out <- test3
   case out of
     Left err -> print err
     Right table -> putStr (foldr (++) "" (map entryToStr table))
@@ -82,13 +81,13 @@ valueToStr :: String->String
 fieldToStr :: (String,String)->String
 entryToStr :: (String,[(String,String)])->String
 
-keyToStr   s        = s
-valueToStr v        = "{" ++ (v ++"}")
-fieldToStr (k,v)    = "  " ++ k ++ " = " ++ (valueToStr v)
+keyToStr = id
+valueToStr v        = concat ["{",v,"}"]
+fieldToStr (k,v)    = concat ["  ",k," = ",valueToStr v]
 entryToStr (name,((_,doctype):f))    
-           = let 
-                 fStr = foldl1 conc (map fieldToStr f)
-                   where conc x y = x ++ ",\n" ++ y
-             in  "@" ++ doctype ++ " { " ++ name ++ ",\n" ++ fStr ++ "\n}"
+           = "@" ++ doctype ++ " { " ++ name ++ ",\n" ++ fStr ++ "}\n"
+               where fStr = foldl1 conc (map fieldToStr f)
+                     conc x y = x ++ ",\n" ++ y
+
 --Should have a more idealistic way of getting the doctype
 
