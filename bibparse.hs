@@ -83,12 +83,12 @@ fieldToStr :: (String,String)->String
 entryToStr :: (String,[(String,String)])->String
 
 keyToStr   s        = s
-valueToStr v        = "{" ++ (v ++"}")
+valueToStr v        = "{ " ++ (v ++" }")
 fieldToStr (k,v)    = "  " ++ k ++ " = " ++ (valueToStr v)
 entryToStr (name,((_,doctype):f))    
            = let 
                  fStr = foldl1 conc (map fieldToStr f)
                    where conc x y = x ++ ",\n" ++ y
-             in  "@" ++ doctype ++ " { " ++ name ++ ",\n" ++ fStr ++ "\n}"
+             in  "@" ++ doctype ++ " { " ++ name ++ ",\n" ++ fStr ++ "}\n"
 --Should have a more idealistic way of getting the doctype
 
