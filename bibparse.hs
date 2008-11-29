@@ -81,11 +81,10 @@ entryToStr :: (String,[(String,String)])->String
 
 keyToStr = id
 valueToStr v        = concat ["{",v,"}"]
-fieldToStr (k,v)    = concat ["  ",k," = ",valueToStr v]
+fieldToStr (k,v)    = concat ["  ",k," = ",valueToStr v,"\n"]
 entryToStr (name,((_,doctype):f))    
            = "@" ++ doctype ++ " { " ++ name ++ ",\n" ++ fStr ++ "}\n"
-               where fStr = foldl1 conc (map fieldToStr f)
-                     conc x y = x ++ ",\n" ++ y
+               where fStr = concatMap fieldToStr f
 
 --Should have a more idealistic way of getting the doctype
 
