@@ -4,9 +4,9 @@ import Data.List
 import Data.Maybe
 import Data.Char
 import BibParse
-
+type EntryKey = String
 type Table    = [Entry]
-findEntry :: Table->Key->Maybe Entry
+findEntry :: Table->EntryKey->Maybe Entry
 findEntry t ek = find (\(ek',_) -> ek' == (map toLower ek) ) t 
 
 lookupKeyValue_ :: Entry->Key->Maybe Value
@@ -14,7 +14,7 @@ lookupKeyValue_ (n,fs) k = case (find (\(k',_) -> k' == (map toLower k) ) fs) of
                              Just kv -> Just (snd kv)
                              Nothing -> Nothing
 
-lookupKeyValue :: Table->Key->Key-> Maybe Value
+lookupKeyValue :: Table->EntryKey->Key-> Maybe Value
 lookupKeyValue t ek k = case (find ( \(ek',fs) -> ek' == (map toLower ek) ) t ) of 
                           Just e -> lookupKeyValue_ e k
                           Nothing -> Nothing
