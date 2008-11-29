@@ -6,8 +6,8 @@ import Data.Char
 import BibParse
 
 type EntryKey = String
-type FieldKey = String
 type Table    = [Entry]
+
 findEntry :: Table->EntryKey->Maybe Entry
 findEntry t ek = find (\(ek',_) -> ek' == (map toLower ek) ) t 
 
