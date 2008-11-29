@@ -1,9 +1,13 @@
-module Text.Parser.Bibtex where
+module BibParse where
 
 import Text.ParserCombinators.Parsec
 import Text.Parsec.Token
 import Text.Parsec.Language (haskellDef)
-import Data.List
+
+type Key = String
+type Value = String
+type Field  = (Key,Value)
+type Entry = (String,[Field])
 
 run :: Show a => Parser a -> String -> IO ()
 run p input
@@ -61,30 +65,3 @@ entry = do
   return (key,("doctype",title):cont)
 
 bibfile = do {white; sepBy1 entry white}
- 
-test3 =  parseFromFile bibfile "/home/cf/papers/papers.bib"
-testPretty = do 
-  out <- test3
-  case out of
-    Left err -> print err
-    Right table -> putStr (foldr (++) "" (map entryToStr table))
-
-type Key = String
-type Value = String
-type Field  = (Key,Value)
-type Entry = (String,[Field])
-
-keyToStr   :: String->String
-valueToStr :: String->String
-fieldToStr :: (String,String)->String
-entryToStr :: (String,[(String,String)])->String
-
-keyToStr = id
-valueToStr v        = concat ["{",v,"}"]
-fieldToStr (k,v)    = concat ["  ",k," = ",valueToStr v,"\n"]
-entryToStr (name,((_,doctype):f))    
-           = "@" ++ doctype ++ " { " ++ name ++ ",\n" ++ fStr ++ "}\n"
-               where fStr = concatMap fieldToStr f
-
---Should have a more idealistic way of getting the doctype
-
