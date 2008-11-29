@@ -7,7 +7,9 @@ import Text.Parsec.Language (haskellDef)
 type Key = String
 type Value = String
 type Field  = (Key,Value)
+-- data Field = Field Key Value
 type Entry = (String,[Field])
+-- data Entry = Entry Key [Field]
 
 run :: Show a => Parser a -> String -> IO ()
 run p input
