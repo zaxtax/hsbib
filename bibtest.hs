@@ -1,4 +1,4 @@
-module BibTest where 
+module Main where 
 
 import Text.ParserCombinators.Parsec
 
