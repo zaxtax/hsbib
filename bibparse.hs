@@ -3,9 +3,7 @@ module Text.Parser.Bibtex where
 import Text.ParserCombinators.Parsec
 import Text.Parsec.Token
 import Text.Parsec.Language (haskellDef)
-import List
-
--- type Entry = (String, [(String,String)])
+import Data.List
 
 run :: Show a => Parser a -> String -> IO ()
 run p input
