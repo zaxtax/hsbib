@@ -27,3 +27,9 @@ testPretty = do
   case out of
     Left err -> print err
     Right table -> putStr (foldr (++) "" (map entryToStr table))
+
+test3 file = do
+  parsed <-  parseFromFile bibfile file
+  case parsed of
+    Left err -> print err
+    Right table -> print table

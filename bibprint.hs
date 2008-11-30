@@ -11,7 +11,7 @@ entryToStr :: (String,[(String,String)])->String
 keyToStr = id
 valueToStr v        = concat ["{",strip v,"}"]
 fieldToStr (k,v)    = concat ["  ",k," = ",valueToStr v,"\n"]
-entryToStr (name,((_,doctype):f))    
+entryToStr (name,(_,doctype):f)    
            = "@" ++ doctype ++ " { " ++ name ++ ",\n" ++ fStr ++ "}\n"
                where fStr = concatMap fieldToStr f
 
