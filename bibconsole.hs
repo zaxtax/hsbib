@@ -3,6 +3,7 @@ module Main where
 
 import Data.List (isInfixOf, isPrefixOf)
 import Control.Monad
+-- import Control.Monad.State -- we should use this at point
 import System.Console.Readline hiding (Entry)
 import System.Environment
 
@@ -14,18 +15,17 @@ import System.Posix.Internals (setNonBlockingFD)
 import System.Process
 -- import System.Cmd
 
-import Text.ParserCombinators.Parsec (parseFromFile)
-import BibParse
+import BibParse (parseIt, Entry, Field)
 import Data.String.Utils
 
 main = do 
   args <- getArgs
-  foo  <- case args of
-    [] -> putStrLn $ usageInfo commands
-    _  -> mapM_ parse args
+  bibs  <- case args of
+    [] -> (putStr $ usageInfo commands) >> return []
+    _  -> liftM concat (mapM parseIt args)
   initialize
   setAttemptedCompletionFunction (Just $ setupCompleter commands)
-  catchIO repl
+  catchIO $ repl (Just []) bibs
   resetTerminal Nothing
 
 commands :: [CommandDescr]
@@ -37,18 +37,17 @@ commands = [("help", "   -- show help", complete_none)
 
 docOpen = id
 
-search s = map (filter (/= '\"')) (splitLine s)
+search s _ = map (filter (/= '\"')) s
 
-parse file = do
-  parsed <-  parseFromFile bibfile file
-  case parsed of
-    Left err -> print err
-    Right table -> print table
+-- utils will go into bibutils.hs soon
 
 fromJust (Just a) = a
 
+concatMapM        :: (Monad m) => (a -> m [b]) -> [a] -> m [b]
+concatMapM f xs   =  liftM concat (mapM f xs)
+
 displayEntry :: Entry -> [String]
-displayEntry entry = map (fromJust . flip lookup (snd entry)) ["title","author"]
+displayEntry entry = fst entry : (map (fromJust . flip lookup (snd entry)) ["title","author"])
 
 splitLine [] = []
 splitLine x  = y : splitLine ys 
@@ -102,18 +101,22 @@ getInput = do
         Nothing -> putStr "\n" >> return Nothing
         Just xs -> addHistory xs >> return (Just xs)
 
-handleInput :: String -> IO Bool
-handleInput = execute . splitLine . strip   
+handleInput :: String -> [Entry] -> IO (Maybe [String],[Entry])
+handleInput = execute . splitLine . strip  
 
-repl :: IO ()
-repl = do
+repl :: Maybe [String] -> [Entry] -> IO ()
+repl Nothing _ = return ()
+repl prev db = do
   input <- getInput
   case input of
     Nothing -> return ()
-    Just i  -> handleInput i >>= flip unless repl
+    Just i  -> do
+        (res,newdb) <- handleInput i db
+        repl res newdb 
 
-execute :: [String] -> IO Bool
-execute ["help"] = putStr (usageInfo commands) >> return False
-execute ["quit"] = return True
-execute ["version"] = putStrLn "hsbib: 0.1" >> return False
-execute debug = putStr (concatMap id $ ":":debug++[":\n"]) >> return False
+execute :: [String] -> [Entry] -> IO (Maybe [String],[Entry])
+execute ["help"] e = putStr (usageInfo commands) >> return (Just [],e)
+execute ("find":xs) e = return (Nothing,e) where res = search xs e
+execute ["quit"] e = return (Nothing,e)
+execute ["version"] e = putStrLn "hsbib: 0.1" >> return (Just [],e)
+execute debug e = putStr (concatMap id $ ":":debug++[":\n"]) >> return (Just [],e)
