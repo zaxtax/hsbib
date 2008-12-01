@@ -38,10 +38,15 @@ commands = [("help", "   -- show help", complete_none)
 
 docOpen = id
 
-search s _ = map (filter (/= '\"')) s
+search :: [String] -> [Entry] -> [String] 
+search s e = map (printEntry . displayEntry) $ filter (blend querys . show) e
+             where querys = map (filter (/= '\"')) s
+                   blend []   _ = False
+                   blend (q:qx) e | isInfixOf q e = True
+                                  | otherwise = blend qx e
 
 -- utils will go into bibutils.hs soon
-
+fromJust Nothing  = "none"
 fromJust (Just a) = a
 
 concatMapM        :: (Monad m) => (a -> m [b]) -> [a] -> m [b]
@@ -49,6 +54,8 @@ concatMapM f xs   =  liftM concat (mapM f xs)
 
 displayEntry :: Entry -> [String]
 displayEntry (Entry k fields) = k : (map (fromJust . flip lookup fields) ["title","author"])
+
+printEntry (_:title:author:[]) = "Title: " ++ title ++ "\nAuthor: " ++ author ++ "\n"
 
 splitLine [] = []
 splitLine x  = y : splitLine ys 
@@ -117,7 +124,7 @@ repl prev db = do
 
 execute :: [String] -> [Entry] -> IO (Maybe [String],[Entry])
 execute ["help"] e = putStr (usageInfo commands) >> return (Just [],e)
-execute ("find":xs) e = return (Nothing,e) where res = search xs e
+execute ("find":xs) e = mapM_ putStrLn res >> return (Just res,e) where res = search xs e
 execute ["quit"] e = return (Nothing,e)
 execute ["version"] e = putStrLn "hsbib: 0.1" >> return (Just [],e)
 execute debug e = putStr (concatMap id $ ":":debug++[":\n"]) >> return (Just [],e)
