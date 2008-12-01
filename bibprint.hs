@@ -1,18 +1,18 @@
 module BibPrint where
 
+import BibParse
 import Data.List
 import Data.String.Utils
 
-keyToStr   :: String->String
-valueToStr :: String->String
-fieldToStr :: (String,String)->String
-entryToStr :: (String,[(String,String)])->String
+escapeField :: String->String
+showField  :: Field->String
+showEntry  :: Entry->String
 
-keyToStr = id
-valueToStr v        = concat ["{",strip v,"}"]
-fieldToStr (k,v)    = concat ["  ",k," = ",valueToStr v,"\n"]
-entryToStr (name,(_,doctype):f)    
-           = "@" ++ doctype ++ " { " ++ name ++ ",\n" ++ fStr ++ "}\n"
-               where fStr = concatMap fieldToStr f
+escapeField v       = concat ["{",strip v,"}"]
+showField  (k,v)    = concat ["  ",k," = ",escapeField v,"\n"]
+showEntry (Entry name ((_,doctype):f))    
+    = "@" ++ doctype ++ " { " ++ name ++ ",\n" ++ fStr ++ "}\n"
+      where fStr = concatMap showField f
 
---Should have a more idealistic way of getting the doctype
+instance Show Entry where
+    show = showEntry

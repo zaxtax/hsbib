@@ -5,21 +5,19 @@ import Data.Maybe
 import Data.Char
 import BibParse
 
-type EntryKey = String
-type Table    = [Entry]
-findEntry :: Table->EntryKey->Maybe Entry
+findEntry :: [Entry]->Key->Maybe Entry
 findEntry t ek = find (\(ek',_) -> ek' == (map toLower ek) ) t 
 
-lookupKeyValue_ :: Entry->Key->Maybe Value
+lookupKeyValue_ :: Entry->String->Maybe String
 lookupKeyValue_ (n,fs) k = case (find (\(k',_) -> k' == (map toLower k) ) fs) of
                              Just kv -> Just (snd kv)
                              Nothing -> Nothing
 
-lookupKeyValue :: Table->EntryKey->Key-> Maybe Value
+lookupKeyValue :: [Entry]->Key->String-> Maybe String
 lookupKeyValue t ek k = case (find ( \(ek',fs) -> ek' == (map toLower ek) ) t ) of 
                           Just e -> lookupKeyValue_ e k
                           Nothing -> Nothing
-getWithTag :: Table->String->Table
+getWithTag :: [Entry]->String->[Entry]
 getWithTag t s = filter (\e -> hasTag e s) t 
 hasTag :: Entry->String->Bool
 hasTag e s = case lookupKeyValue_ e "tag" of

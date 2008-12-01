@@ -15,7 +15,8 @@ import System.Posix.Internals (setNonBlockingFD)
 import System.Process
 -- import System.Cmd
 
-import BibParse (parseIt, Entry, Field)
+import BibParse
+import BibPrint
 import Data.String.Utils
 
 main = do 
@@ -47,7 +48,7 @@ concatMapM        :: (Monad m) => (a -> m [b]) -> [a] -> m [b]
 concatMapM f xs   =  liftM concat (mapM f xs)
 
 displayEntry :: Entry -> [String]
-displayEntry entry = fst entry : (map (fromJust . flip lookup (snd entry)) ["title","author"])
+displayEntry (Entry k fields) = k : (map (fromJust . flip lookup fields) ["title","author"])
 
 splitLine [] = []
 splitLine x  = y : splitLine ys 

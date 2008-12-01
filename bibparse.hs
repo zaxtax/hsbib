@@ -5,11 +5,10 @@ import Text.Parsec.Token
 import Text.Parsec.Language (haskellDef)
 
 type Key = String
-type Value = String
-type Field  = (Key,Value)
+type Field  = (String,String)
 -- data Field = Field Key Value
-type Entry = (String,[Field])
--- data Entry = Entry Key [Field]
+-- type Entry = (String,[Field])
+data Entry = Entry Key [Field]
 
 run :: Show a => Parser a -> String -> IO ()
 run p input
@@ -64,6 +63,13 @@ entry :: Parser Entry
 entry = do 
   char '@'; title <- word; white
   (key,cont) <- braces lexer fields
-  return (key,("doctype",title):cont)
+  return $ Entry key (("doctype",title):cont)
 
 bibfile = do {white; sepBy1 entry white}
+
+parseIt :: String -> IO [Entry]
+parseIt file = do
+  parsed <-  parseFromFile bibfile file
+  case parsed of
+    Left err -> print err >> return []
+    Right table -> return table
