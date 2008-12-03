@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -XPatternGuards #-} 
 module Main where
 
-import Data.List (isInfixOf, isPrefixOf)
+import Data.List (isInfixOf, isPrefixOf, transpose)
 import Control.Monad
 -- import Control.Monad.State -- we should use this at point
 import System.Console.Readline hiding (Entry)
@@ -46,8 +46,8 @@ docOpen docs e = do
     
                  
 
-search :: [String] -> [Entry] -> [String] 
-search s e = map (printEntry . displayEntry) $ filter (blend s . (map toLower) . show) e
+search :: [String] -> [Entry] -> [[String]]
+search s e = map displayEntry $ filter (blend s . (map toLower) . show) e
              where blend []   _ = False
                    blend (q:qx) e | isInfixOf q e = True
                                   | otherwise = blend qx e
@@ -141,12 +141,11 @@ repl prev db = do
 
 execute :: [String] -> Maybe [String] -> [Entry] -> IO (Maybe [String],[Entry])
 execute ["help"] _ e = putStr (usageInfo commands) >> return (Just [],e)
-execute ["open"] r e = undefined -- should just pass all the last values found
+execute ["open"] r e = docOpen (fromJust r) e >> return (Just [],e) -- should just pass all the last values found
 execute ("open":xs) _ e = docOpen xs e >> return (Just [],e)
-execute ("find":xs) _ e = mapM_ putStrLn res >> return (Just res,e) where res = search xs e
+execute ("find":xs) _ e = mapM_ (putStrLn . printEntry) res >> return (Just (head $ transpose res),e) where res = search xs e
 execute ("print":xs) _ e = putStrLn (concatMap (show . findEntry e) xs) >> return (Just [],e) -- to debug
 execute ["quit"] _ e = return (Nothing,e)
 execute ["version"] _ e = putStrLn "hsbib: 0.1" >> return (Just [],e)
 execute ["list"] _ e = putStrLn (show e) >> return (Just [],e) -- to debug
 execute debug _ e = putStr (concatMap id $ ":":debug++[":\n"]) >> return (Just [],e)
-

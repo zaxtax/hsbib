@@ -20,6 +20,7 @@ displayEntry :: Entry -> [String]
 displayEntry (Entry k fields) = 
     k : (map (strip . fromJust . flip lookup fields) ["title","author"])
 
+printEntry :: [String] -> String
 printEntry (k:title:_) = concat ["(",k,")\n  Title: ",title]
 
 removeQuotes :: String -> String
