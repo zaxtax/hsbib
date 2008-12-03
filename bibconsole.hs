@@ -11,9 +11,10 @@ import Control.Exception
 import System.IO
 import Text.Printf (printf)
 import System.Posix.Internals (setNonBlockingFD)
-
 import System.Process
--- import System.Cmd
+
+import System.Directory
+import System.FilePath
 
 import BibParse
 import BibPrint
@@ -25,21 +26,25 @@ main = do
   args <- getArgs
   bibs  <- case args of
     [] -> (putStr $ usageInfo commands) >> return []
-    _  -> liftM concat (mapM parseIt args)
+    _  -> liftM concat (mapM makeAbsParse args)
   initialize
-  setAttemptedCompletionFunction (Just $ setupCompleter commands)
+  setAttemptedCompletionFunction (Just $ setupCompleter (makeOpenDescr bibs:commands))
   catchIO $ repl (Just []) bibs
   resetTerminal Nothing
 
 commands :: [CommandDescr]
 commands = [("help", "   -- show help", complete_none)
-           ,("open", "   -- open document",complete_file)
+           ,("open", "   -- open document", complete_none)
+           ,("load", "   -- load bibtex file",complete_file)
            ,("find", "   -- find documents",complete_none)
            ,("version", "-- show version", complete_none)
            ,("quit", "   -- quit",  complete_none)]
 
-docOpen arg e = do
-  runProcess "gv" ["RW1.pdf"] (Just "/home/cf/orig/") Nothing Nothing Nothing Nothing
+docOpen docs e = do
+  mapM (\ x-> runCommand ("gv " ++ x)) 
+       (catMaybes $ map (lookupKeyValue e "src") docs)
+    
+                 
 
 search :: [String] -> [Entry] -> [String] 
 search s e = map (printEntry . displayEntry) $ filter (blend s . (map toLower) . show) e
@@ -47,10 +52,31 @@ search s e = map (printEntry . displayEntry) $ filter (blend s . (map toLower) .
                    blend (q:qx) e | isInfixOf q e = True
                                   | otherwise = blend qx e
 
--- get the right dir
+-- helper functions to aid in opening
+makeOpenDescr :: [Entry] -> CommandDescr
+makeOpenDescr entries = ("open","   -- open document", completeIds entries)
 
--- canonicalizePath  . takeDirectory
--- (/) getCurrentDirectory isAbsolute
+completeIds :: [Entry] -> Completer
+completeIds entries = do
+  ids <- return $ map (\(Entry k _) -> k) entries
+  return . complete_string ids
+
+-- get the right dir
+makeAbsParse :: FilePath -> IO [Entry]
+makeAbsParse file = do
+  entries <- parseIt file
+  abDir <- (canonicalizePath . takeDirectory) file
+  mapM (return . makeAbsField abDir) entries
+
+makeAbsField :: FilePath -> Entry -> Entry
+makeAbsField abDir e = 
+  case (lookupKeyValue_ "src" e) of
+    Just f -> if isRelative f 
+              then updateField "src" (abDir</>f) e 
+              else e
+    Nothing -> e
+
+-- getCurrentDirectory
 
 -- Most of these functions cribbed from readline reference
 catchIO :: IO () -> IO ()
@@ -100,7 +126,7 @@ getInput = do
         Nothing -> putStr "\n" >> return Nothing
         Just xs -> addHistory xs >> return (Just xs)
 
-handleInput :: String -> [Entry] -> IO (Maybe [String],[Entry])
+handleInput :: String -> Maybe [String] -> [Entry] -> IO (Maybe [String],[Entry])
 handleInput = execute . (map removeQuotes) . splitLine . strip  
 
 repl :: Maybe [String] -> [Entry] -> IO ()
@@ -110,14 +136,17 @@ repl prev db = do
   case input of
     Nothing -> return ()
     Just i  -> do
-        (res,newdb) <- handleInput i db
+        (res,newdb) <- handleInput i prev db
         repl res newdb 
 
-execute :: [String] -> [Entry] -> IO (Maybe [String],[Entry])
-execute ["help"] e = putStr (usageInfo commands) >> return (Just [],e)
-execute ("open":xs) e = docOpen xs e >> return (Just [],e)
-execute ("find":xs) e = mapM_ putStrLn res >> return (Just res,e) where res = search xs e
-execute ("dump":xs) e = putStrLn (concatMap (show . findEntry e) xs) >> return (Just [],e)
-execute ["quit"] e = return (Nothing,e)
-execute ["version"] e = putStrLn "hsbib: 0.1" >> return (Just [],e)
-execute debug e = putStr (concatMap id $ ":":debug++[":\n"]) >> return (Just [],e)
+execute :: [String] -> Maybe [String] -> [Entry] -> IO (Maybe [String],[Entry])
+execute ["help"] _ e = putStr (usageInfo commands) >> return (Just [],e)
+execute ["open"] r e = undefined -- should just pass all the last values found
+execute ("open":xs) _ e = docOpen xs e >> return (Just [],e)
+execute ("find":xs) _ e = mapM_ putStrLn res >> return (Just res,e) where res = search xs e
+execute ("print":xs) _ e = putStrLn (concatMap (show . findEntry e) xs) >> return (Just [],e) -- to debug
+execute ["quit"] _ e = return (Nothing,e)
+execute ["version"] _ e = putStrLn "hsbib: 0.1" >> return (Just [],e)
+execute ["list"] _ e = putStrLn (show e) >> return (Just [],e) -- to debug
+execute debug _ e = putStr (concatMap id $ ":":debug++[":\n"]) >> return (Just [],e)
+

@@ -8,8 +8,10 @@ import Data.String.Utils
 
 import BibParse
 
-fromJust Nothing  = "none"
+fromJust Nothing  = undefined
 fromJust (Just a) = a
+
+catMaybes ls = [x | Just x <- ls]
 
 concatMapM        :: (Monad m) => (a -> m [b]) -> [a] -> m [b]
 concatMapM f xs   =  liftM concat (mapM f xs)
@@ -30,25 +32,25 @@ splitLine x  = y : splitLine ys
 findEntry :: [Entry] -> Key -> Maybe Entry
 findEntry t k = find (\ (Entry key _) -> key == map toLower k) t
 
-lookupKeyValue_ :: Entry->String->Maybe String
-lookupKeyValue_ (Entry _ fs) k 
+lookupKeyValue_ :: String -> Entry -> Maybe String
+lookupKeyValue_ k (Entry _ fs)
     | Just kv <- find (\(k',_) -> k' == (map toLower k) ) fs
     = Just (snd kv)
     | otherwise = Nothing
 
-lookupKeyValue :: [Entry]->Key->String-> Maybe String
-lookupKeyValue t ek k 
+lookupKeyValue :: [Entry] -> String-> Key -> Maybe String
+lookupKeyValue t k ek 
     | Just e <- find ( \(Entry ek' fs) -> ek' == (map toLower ek)) t 
-    = lookupKeyValue_ e k
+    = lookupKeyValue_ k e
     | otherwise = Nothing
 
 getWithTag :: [Entry]->String->[Entry]
-getWithTag t s = filter (\e -> hasTag e s) t 
+getWithTag t s = filter (\e -> isTag e s) t 
 
-hasTag :: Entry->String->Bool
-hasTag e s | Just s' <- lookupKeyValue_ e "tag"
-           = isInfixOf (map toLower s ) (map toLower s')
-           | otherwise = False
+isTag :: Entry->String->Bool
+isTag e s | Just s' <- lookupKeyValue_ "tag" e
+          = isInfixOf (map toLower s ) (map toLower s')
+          | otherwise = False
 
 -- |Takes a field and a new value and a entry and returns 
 -- an entry where that field has the given value
@@ -63,5 +65,15 @@ addField :: Field -> Entry -> Entry
 addField n e@(Entry k fs) | not $ hasField e (fst n) = Entry k (n:fs)
                           | otherwise = e
 
+dropField :: Field -> Entry -> Entry
+dropField n (Entry key fs) = 
+    Entry key (deleteBy (\(a,_) (b,_) -> a==b) n fs)
+
 hasField :: Entry -> String -> Bool
 hasField (Entry _ fs) key = any (\ x -> fst x == key) fs 
+
+dumpToFile :: Entry -> IO ()
+dumpToFile = undefined
+
+dropDups :: Entry -> Entry
+dropDups (Entry key fs) = Entry key (nubBy (\(a,_) (b,_) -> a==b) fs)
