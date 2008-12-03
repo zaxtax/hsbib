@@ -17,7 +17,9 @@ import System.Process
 
 import BibParse
 import BibPrint
+import BibUtils
 import Data.String.Utils
+import Data.Char
 
 main = do 
   args <- getArgs
@@ -36,30 +38,19 @@ commands = [("help", "   -- show help", complete_none)
            ,("version", "-- show version", complete_none)
            ,("quit", "   -- quit",  complete_none)]
 
-docOpen = id
+docOpen arg e = do
+  runProcess "gv" ["RW1.pdf"] (Just "/home/cf/orig/") Nothing Nothing Nothing Nothing
 
 search :: [String] -> [Entry] -> [String] 
-search s e = map (printEntry . displayEntry) $ filter (blend querys . show) e
-             where querys = map (filter (/= '\"')) s
-                   blend []   _ = False
+search s e = map (printEntry . displayEntry) $ filter (blend s . (map toLower) . show) e
+             where blend []   _ = False
                    blend (q:qx) e | isInfixOf q e = True
                                   | otherwise = blend qx e
 
--- utils will go into bibutils.hs soon
-fromJust Nothing  = "none"
-fromJust (Just a) = a
+-- get the right dir
 
-concatMapM        :: (Monad m) => (a -> m [b]) -> [a] -> m [b]
-concatMapM f xs   =  liftM concat (mapM f xs)
-
-displayEntry :: Entry -> [String]
-displayEntry (Entry k fields) = k : (map (fromJust . flip lookup fields) ["title","author"])
-
-printEntry (_:title:author:[]) = "Title: " ++ title ++ "\nAuthor: " ++ author ++ "\n"
-
-splitLine [] = []
-splitLine x  = y : splitLine ys 
-    where [(y,ys)] = lex x
+-- canonicalizePath  . takeDirectory
+-- (/) getCurrentDirectory isAbsolute
 
 -- Most of these functions cribbed from readline reference
 catchIO :: IO () -> IO ()
@@ -110,7 +101,7 @@ getInput = do
         Just xs -> addHistory xs >> return (Just xs)
 
 handleInput :: String -> [Entry] -> IO (Maybe [String],[Entry])
-handleInput = execute . splitLine . strip  
+handleInput = execute . (map removeQuotes) . splitLine . strip  
 
 repl :: Maybe [String] -> [Entry] -> IO ()
 repl Nothing _ = return ()
@@ -124,7 +115,9 @@ repl prev db = do
 
 execute :: [String] -> [Entry] -> IO (Maybe [String],[Entry])
 execute ["help"] e = putStr (usageInfo commands) >> return (Just [],e)
+execute ("open":xs) e = docOpen xs e >> return (Just [],e)
 execute ("find":xs) e = mapM_ putStrLn res >> return (Just res,e) where res = search xs e
+execute ("dump":xs) e = putStrLn (concatMap (show . findEntry e) xs) >> return (Just [],e)
 execute ["quit"] e = return (Nothing,e)
 execute ["version"] e = putStrLn "hsbib: 0.1" >> return (Just [],e)
 execute debug e = putStr (concatMap id $ ":":debug++[":\n"]) >> return (Just [],e)

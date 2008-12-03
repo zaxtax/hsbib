@@ -4,6 +4,8 @@ import Text.ParserCombinators.Parsec
 import Text.Parsec.Token
 import Text.Parsec.Language (haskellDef)
 
+import Data.Char
+
 type Key = String
 type Field  = (String,String)
 -- data Field = Field Key Value
@@ -46,18 +48,17 @@ fval s = do
 field :: Parser (String,String)
 field  = do 
   white
-  key <- many1 alphaNum; skipMany space;
+  key <- many1 alphaNum; skipMany space
   char '='; skipMany space
   val <- fval ",}"
-  white
-  return (key,val)
+  return (map toLower key,val)
 
-fields :: Parser (String,[(String,String)])
+fields :: Parser (String,[Field])
 fields = do 
   key <- many1 (alphaNum <|> oneOf "/_:-")
   white; char ','; white
   rest <- sepEndBy field (char ',')
-  return $ (key,rest)          
+  return (key,rest)
 
 entry :: Parser Entry
 entry = do 
