@@ -31,7 +31,7 @@ splitLine x  = y : splitLine ys
     where [(y,ys)] = lex x
 
 findEntry :: [Entry] -> Key -> Maybe Entry
-findEntry t k = find (\ (Entry key _) -> key == map toLower k) t
+findEntry t k = find (\ (Entry key _) -> (map toLower key) == map toLower k) t
 
 lookupKeyValue_ :: String -> Entry -> Maybe String
 lookupKeyValue_ k (Entry _ fs)
@@ -41,7 +41,7 @@ lookupKeyValue_ k (Entry _ fs)
 
 lookupKeyValue :: [Entry] -> String-> Key -> Maybe String
 lookupKeyValue t k ek 
-    | Just e <- find ( \(Entry ek' fs) -> ek' == (map toLower ek)) t 
+    | Just e <- find ( \(Entry ek' fs) -> (map toLower ek') == (map toLower ek)) t 
     = lookupKeyValue_ k e
     | otherwise = Nothing
 
