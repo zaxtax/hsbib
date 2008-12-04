@@ -48,7 +48,8 @@ fval s = do
 field :: Parser (String,String)
 field  = do 
   white
-  key <- many1 alphaNum; skipMany space
+  key <- many1 (alphaNum <|> oneOf "/_:-")
+  skipMany space
   char '='; skipMany space
   val <- fval ",}"
   return (map toLower key,val)

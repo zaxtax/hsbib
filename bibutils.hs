@@ -62,6 +62,9 @@ updateField old new e@(Entry key fs)
     | otherwise = e
     where (front,back) = break (\(k,v)->old==k) fs
 
+mapFields :: (Field -> Field) -> Entry -> Entry
+mapFields f (Entry key xs) = Entry key (map f xs) 
+
 addField :: Field -> Entry -> Entry
 addField n e@(Entry k fs) | not $ hasField e (fst n) = Entry k (n:fs)
                           | otherwise = e

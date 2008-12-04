@@ -35,6 +35,7 @@ main = do
 commands :: [CommandDescr]
 commands = [("help", "   -- show help", complete_none)
            ,("open", "   -- open document", complete_none)
+           ,("dump", "   -- dump entries to a file",complete_file)
            ,("load", "   -- load bibtex file",complete_file)
            ,("find", "   -- find documents",complete_none)
            ,("version", "-- show version", complete_none)
@@ -146,7 +147,7 @@ execute ("open":xs) r e = docOpen xs e >> return (r,e)
 execute ("find":xs) _ e = mapM_ (putStrLn . printEntry) res >> 
                           return (Just (head $ transpose res),e) 
                               where res = search xs e
-execute ["print"] r e = execute ("print":"":fromJust r) r e
+execute ["print"] r e = execute ("print":"":fromJust r) r e  -- to debug
 execute ("print":xs) r e = putStrLn (concatMap (show . findEntry e) xs) >> return (r,e) -- to debug
 execute ["quit"] _ e = return (Nothing,e)
 execute ["version"] r e = putStrLn "hsbib: 0.1" >> return (Just [],e)
