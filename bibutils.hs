@@ -53,7 +53,7 @@ isTag e s | Just s' <- lookupKeyValue_ "tag" e
           = isInfixOf (map toLower s ) (map toLower s')
           | otherwise = False
 
--- |Takes a field and a new value and a entry and returns 
+-- |Takes a field and a new value and an entry and returns 
 -- an entry where that field has the given value
 updateField :: String -> String -> Entry -> Entry
 updateField _ _ e@(Entry k []) = e

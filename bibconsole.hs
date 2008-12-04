@@ -25,7 +25,7 @@ import Data.Char
 main = do 
   args <- getArgs
   bibs  <- case args of
-    [] -> (putStr $ usageInfo commands) >> return []
+    [] -> (putStrLn "Warning no Bibtex files provided") >> return []
     _  -> liftM concat (mapM makeAbsParse args)
   initialize
   setAttemptedCompletionFunction (Just $ setupCompleter (makeOpenDescr bibs:commands))
