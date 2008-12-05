@@ -48,7 +48,7 @@ docOpen docs e = do
                  
 
 search :: [String] -> [Entry] -> [[String]]
-search s e = map displayEntry $ filter (blend s . (map toLower) . show) e
+search s e = map displayEntry $ filter (blend s . (map toLower) . show) e   -- (or . map InfixOf
              where blend []   _ = False
                    blend (q:qx) e | isInfixOf q e = True
                                   | otherwise = blend qx e
@@ -151,5 +151,5 @@ execute ["print"] r e = execute ("print":"":fromJust r) r e  -- to debug
 execute ("print":xs) r e = putStrLn (concatMap (show . findEntry e) xs) >> return (r,e) -- to debug
 execute ["quit"] _ e = return (Nothing,e)
 execute ["version"] r e = putStrLn "hsbib: 0.1" >> return (Just [],e)
-execute ["list"] _ e = putStrLn (show e) >> return (Just [],e) -- to debug
+execute ["list"] _ e = putStrLn (show $ length e) >> return (Just [],e) -- to debug
 execute debug r e = putStr (concatMap id $ ":":debug++[":\n"]) >> return (Just [],e)

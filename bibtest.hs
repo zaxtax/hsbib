@@ -26,10 +26,16 @@ testPretty = do
   out <- test
   case out of
     Left err -> print err
-    Right table -> putStr (foldr (++) "" (map entryToStr table))
+    Right table -> putStr (foldr (++) "" (map show table))
 
 test3 file = do
   parsed <-  parseFromFile bibfile file
   case parsed of
     Left err -> print err
     Right table -> print table
+
+test4 file = do
+  out <- test
+  case parsed of
+    Left err -> print err >> return 0
+    Right table -> return $ length table
