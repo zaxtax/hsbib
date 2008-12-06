@@ -11,22 +11,22 @@ f0 = ~/papers/papers.bib
 
 
 
-#Basic File associations to use with \"view:\"
-#-You an add your own file assocations in the format .extension = viewer.
-#-All extensions should be in lowercase
-#-As supported by the ConfigFile format, you can substitute other options' values in later options
+#Basic File associations to use with the "view:" command.
+#-You an add your own file assocations in the format: ".extension = viewer" .
+#-All extensions should be in lowercase.
+#-As supported by the ConfigFile format, you can substitute other options' values in later options.
 #-By convention all entries that start with a ' are to be iqnored, except for purpose of substitution.
 #-Substitution is accomplished in the following manner:
 #--#declare an option and the value it is to be substituted for:
 #--'webbrowser = lynx
 #--'textreader = vim
 #--#then use it in later options in the following manner:
-#--.html = %(webbrowser)s 
+#--.html = %('webbrowser)s 
 #--you can also tack on other characters as well:
-#--.txt = %(textreader)s -R
+#--.txt = %('textreader)s -R
 [file_assoc]
 
-#envoy is a good default if you have it or you can get it here http://freshmeat.net/projects/envoy/
+#envoy is a good default if you have it or you can get it here: http://freshmeat.net/projects/envoy/
 defaultviewer = false 											
 'webbrowser = lynx
 'psview = gv
