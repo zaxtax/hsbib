@@ -4,6 +4,7 @@ import Text.ParserCombinators.Parsec
 
 import BibParse
 import BibPrint
+import BibCFG
 import Data.List
 import Maybe
 import Char
@@ -27,7 +28,16 @@ testPretty = do
   case out of
     Left err -> print err
     Right table -> putStr (foldr (++) "" (map show table))
-
+{-
+testCFG = do
+   l <- loadDefaultCFGFile
+	let g = getDocumentAssociations l
+	print g
+	print lookupDocumentViewer g "foo.pdf"
+	print lookupDocumentViewer g "foo.noextensionmatches"
+   putStr "testCFGDone"
+	1
+-}
 test3 file = do
   parsed <-  parseFromFile bibfile file
   case parsed of
@@ -39,3 +49,4 @@ test4 file = do
   case parsed of
     Left err -> print err >> return 0
     Right table -> return $ length table
+
