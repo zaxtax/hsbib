@@ -12,11 +12,9 @@ type Field  = (String,String)
 -- type Entry = (String,[Field])
 data Entry = Entry Key [Field]
 
-run :: Show a => Parser a -> String -> IO ()
-run p input
-        = case (parse p "" input) of
-            Left err -> do{ putStr "parse error at "; print err}
-            Right x  -> print x
+simpleComment   = do
+  string "<!--"
+  manyTill anyChar (try (string "-->"))
 
 word    :: Parser String
 word    = many1 alphaNum <?> "word"

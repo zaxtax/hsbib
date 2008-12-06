@@ -28,7 +28,7 @@ main = do
     [] -> (putStrLn "Warning no Bibtex files provided") >> return []
     _  -> liftM concat (mapM makeAbsParse args)
   initialize
-  setAttemptedCompletionFunction (Just $ setupCompleter (makeOpenDescr bibs:commands))
+  setAttemptedCompletionFunction (Just $ setupCompleter (makeBibDescrs bibs++commands))
   catchIO $ repl (Just []) bibs
   resetTerminal Nothing
 
@@ -54,8 +54,9 @@ search s e = map displayEntry $ filter (blend s . (map toLower) . show) e   -- (
                                   | otherwise = blend qx e
 
 -- helper functions to aid in opening
-makeOpenDescr :: [Entry] -> CommandDescr
-makeOpenDescr entries = ("open","   -- open document", completeIds entries)
+makeBibDescrs :: [Entry] -> [CommandDescr]
+makeBibDescrs entries = [("open","   -- open document", completeIds entries)
+                        ,("print","  -- print bibentry", completeIds entries)]
 
 completeIds :: [Entry] -> Completer
 completeIds entries = do
@@ -148,7 +149,7 @@ execute ("find":xs) _ e = mapM_ (putStrLn . printEntry) res >>
                           return (Just (head $ transpose res),e) 
                               where res = search xs e
 execute ["print"] r e = execute ("print":"":fromJust r) r e  -- to debug
-execute ("print":xs) r e = putStrLn (concatMap (show . findEntry e) xs) >> return (r,e) -- to debug
+execute ("print":xs) r e = putStrLn (concatMap (show . findEntry e) xs) >> return (Just xs,e) -- to debug
 execute ["quit"] _ e = return (Nothing,e)
 execute ["version"] r e = putStrLn "hsbib: 0.1" >> return (Just [],e)
 execute ["list"] _ e = putStrLn (show $ length e) >> return (Just [],e) -- to debug
