@@ -1,0 +1,51 @@
+[bibfiles]
+
+#Bibtex files to load on startup
+#Only paths to .bib files are allowed as values for options in the section
+
+f0 = ~/papers/papers.bib
+#f1 = ...
+#f2 = ...
+#...
+#fn = ...
+
+
+
+#Basic File associations to use with \"view:\"
+#-You an add your own file assocations in the format .extension = viewer.
+#-All extensions should be in lowercase
+#-As supported by the ConfigFile format, you can substitute other options' values in later options
+#-By convention all entries that start with a ' are to be iqnored, except for purpose of substitution.
+#-Substitution is accomplished in the following manner:
+#--#declare an option and the value it is to be substituted for:
+#--'webbrowser = lynx
+#--'textreader = vim
+#--#then use it in later options in the following manner:
+#--.html = %(webbrowser)s 
+#--you can also tack on other characters as well:
+#--.txt = %(textreader)s -R
+[file_assoc]
+
+#envoy is a good default if you have it or you can get it here http://freshmeat.net/projects/envoy/
+defaultviewer = false 											
+'webbrowser = lynx
+'psview = gv
+.html = %('webbrowser)s
+.htm  = %('webbrowser)s  
+.pdf  = %('psview)s 
+.ps   = %('psview)s
+.txt  = less 
+
+
+
+
+[queries]
+
+#Saved queries used with some command we don't have yet
+#The queries use whatever syntax find is supposed to use they are the args to find needed
+#PERHAPS WE SHOULD HAVE THE ABILITY TO CHAIN QUERIES? for example run one query then the next on the output from that one?
+#lastQ should be a keyword for the last successful query!
+articles   = doctype: article
+books      = doctype: books
+byCamus    = author: camus
+camusBooks = doctype: books author: camus
