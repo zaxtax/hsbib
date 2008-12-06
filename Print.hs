@@ -1,6 +1,6 @@
-module BibPrint where
+module Print where
 
-import BibParse
+import Parse
 import Data.List
 import Data.String.Utils
 

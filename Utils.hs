@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -XPatternGuards #-} 
-module BibUtils where
+module Utils where
 
 import Data.List
 import Data.Char
 import Control.Monad
 import Data.String.Utils
 
-import BibParse
+import Parse
 
 fromJust Nothing  = undefined
 fromJust (Just a) = a

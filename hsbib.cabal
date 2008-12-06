@@ -1,0 +1,18 @@
+Name:                hsbib
+Version:             0.1
+License:             GPL
+License-file:        LICENSE
+Category:            Unclassified
+Synopsis:            manages your bibtex files
+Description:         A system for managing, manipulating, annotating, and using bibtex files
+Author:              Rob Zinkov, Javier Rosa
+Maintainer:          javirosa@cs.rutgers.edu
+build-type:          Simple
+Cabal-Version: >= 1.2
+
+executable:          hsbib
+build-depends:       base >= 3, MissingH, parsec >= 3.0, 
+                     filepath, directory, process, readline
+main-is:             Console.hs
+other-modules:       Parse, Print, Utils
+
