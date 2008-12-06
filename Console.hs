@@ -16,9 +16,9 @@ import System.Process
 import System.Directory
 import System.FilePath
 
-import BibParse
-import BibPrint
-import BibUtils
+import Parse
+import Print
+import Utils
 import Data.String.Utils
 import Data.Char
 

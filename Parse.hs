@@ -1,4 +1,4 @@
-module BibParse where
+module Parse where
 
 import Text.ParserCombinators.Parsec
 import Text.Parsec.Token
