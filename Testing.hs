@@ -2,32 +2,47 @@ module Main where
 
 import Text.ParserCombinators.Parsec
 
-import BibParse
-import BibPrint
-import BibCFG
+import Parse
+import Print
+import CFG
 import Data.List
 import Maybe
 import Char
+import Input
 main = do
   test
-  test2
+  --test2
   testPretty
 
-test = parseFromFile bibfile "/home/cf/papers/papers.bib"
+test = parseFromFile bibfile "/home/javirosa/papers/papers.bib"
 
-test2 = do
+{-test2 = do
   parsed <- test
   case parsed of 
     Left err -> print err                   -- there was a parse error
     Right table -> print (doLookups table)  -- do something with the correctly parsed lookup table
-
+-}
 doLookups table = lookup "lecun-06" table >>= lookup "src" 
 
 testPretty = do 
   out <- test
   case out of
-    Left err -> print err
-    Right table -> putStr (foldr (++) "" (map show table))
+    Left err ->  print err
+    Right table -> do putStr (foldr (++) "\n" (map show table))
+
+testGetEntry = do
+	out <- test
+	case out of
+		Left err -> print err
+		Right table -> printIE $ getIEntry table
+
+printIE entryM = do 
+	x <- entryM
+	print entryM
+	return ()
+	
+	
+								
 {-
 testCFG = do
    l <- loadDefaultCFGFile
@@ -45,7 +60,7 @@ test3 file = do
     Right table -> print table
 
 test4 file = do
-  out <- test
+  parsed <- test
   case parsed of
     Left err -> print err >> return 0
     Right table -> return $ length table
