@@ -24,17 +24,17 @@ import Data.Char
 
 main = do 
   args <- getArgs
-  putStrLn "hsbib 0.1 - type help if you need it"
+  putStrLn "hsbib 0.1 - type help for "
   bibs  <- case args of
     [] -> (putStrLn "Warning no Bibtex files provided") >> return []
     _  -> liftM concat (mapM makeAbsParse args)
   initialize
-  setAttemptedCompletionFunction (Just $ setupCompleter (makeBibDescrs bibs++commands))
+  setAttemptedCompletionFunction (Just $ setupCompleter (dynamicDescrs bibs++commands))
   catchIO $ repl (Just []) bibs
   resetTerminal Nothing
 
 commands :: [CommandDescr]
-commands = [("help", "   -- show help", complete_none)
+commands = [("help", "   -- show help", complete_cmds)
            ,("open", "   -- open document", complete_none)
            ,("dump", "   -- dump entries to a file",complete_file)
            ,("load", "   -- load bibtex file",complete_file)
@@ -54,8 +54,8 @@ search s e = map displayEntry $ filter (blend s . (map toLower) . show) e   -- (
                                   | otherwise = blend qx e
 
 -- helper functions to aid in opening
-makeBibDescrs :: [Entry] -> [CommandDescr]
-makeBibDescrs entries = [("open","   -- open document", completeIds entries)
+dynamicDescrs :: [Entry] -> [CommandDescr]
+dynamicDescrs entries = [("open","   -- open document", completeIds entries)
                         ,("print","  -- print bibentry", completeIds entries)]
 
 completeIds :: [Entry] -> Completer
@@ -113,6 +113,10 @@ complete_string cmp s = filter (isInfixOf s) cmp
 
 complete_file :: Completer
 complete_file = filenameCompletionFunction
+
+complete_cmds :: Completer
+complete_cmds = return . complete_string (map fst3 commands)
+                where fst3 (a,_,_) = a
 
 setupCompleter :: [CommandDescr] -> String -> Int -> Int
                -> IO (Maybe (String, [String]))
