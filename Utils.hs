@@ -81,3 +81,38 @@ dumpToFile = undefined
 
 dropDups :: Entry -> Entry
 dropDups (Entry key fs) = Entry key (nubBy (\(a,_) (b,_) -> a==b) fs)
+
+type Help =  (String,(String,String))
+
+noMore = "No additional help provided."
+
+helps :: [Help]
+allShortHelp :: String
+
+helps = [
+	("bibconsolerc",("Startup configuration file for bibconsole",noMore)),
+	("dump",("write \"pathToFile\" entries to the named file",noMore)),
+	("find",("find documents",noMore)),
+	("help",("help \"cmd\" for more information on a command.",noMore)),
+	("load",("load \"pathToFile\" loads bibtex file entries from name file",noMore)),
+	("open",	("open document","Opens document with associated viewer based on file extension. \n\tFile associations are specifiable in the bibconsolerc file.\n\tUse \"help bibconsolerc\" for more information.")),
+	("version",("show version",noMore)),
+	("quit",("Exits the program without checking to see if data is saved.",noMore))
+	]
+
+allShortHelp = concatMap formatShortHelp helps ++ "\n"
+
+formatShortHelp :: Help->String
+formatShortHelp (key, (short, long)) = concat [ key, "\t\t--", short, "\n" ]
+
+formatLongHelp :: Help->String
+formatLongHelp (key, (short, long)) = concat [ key, " - ", long, "\n" ]
+
+getShortHelp :: String -> String
+getShortHelp = (formatShortHelp . getHelp helps )
+getLongHelp :: String -> String
+getLongHelp  = (formatLongHelp  . getHelp helps )
+
+getHelp ::[Help]->String->Help
+getHelp ( h@(cmdName', _):hs ) cmdName = if cmdName == cmdName' then h else getHelp hs cmdName
+getHelp _ _ = ("", ("help not found try just \"help\" instead","help not found try just \"help\" instead"))
