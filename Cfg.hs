@@ -38,8 +38,9 @@ getDocumentAssociations cp =
 
 
 lookupDocumentViewer :: [(String,String)]->FilePath->Maybe String
-lookupDocumentViewer das fp    =  case lookup fext das of
-                                         Just a  -> Just a
-                                         Nothing -> lookup "defaultviewer" das
-                                       where fext = takeExtension fp
+lookupDocumentViewer das fp = 
+    case lookup fext das of
+      Just a  -> Just a
+      Nothing -> lookup "defaultviewer" das
+    where fext = takeExtension fp
 
