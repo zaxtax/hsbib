@@ -1,12 +1,12 @@
-module BibCFG where
+module CFG where
 
 import Data.ConfigFile
 import System.Directory
-import System.FilePath.Posix
+import System.FilePath
 import Data.Either.Utils
 import System.FilePath
 
-defaultCFGFileName = "./bibconsolerc"
+defaultCFGFileName = "bibconsolerc"
 maxInterpolationDepth = 10
 cp = emptyCP { usedefault = False , accessfunc = interpolatingAccess maxInterpolationDepth }
 --ToDo:
