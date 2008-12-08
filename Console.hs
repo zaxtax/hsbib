@@ -153,7 +153,7 @@ execute ("find":xs) _ e = mapM_ (putStrLn . printEntry) res >>
                           return (Just (head $ transpose res),e) 
                               where res = search xs e
 execute ["print"] r e = execute ("print":"":fromJust r) r e  -- to debug
-execute ("print":xs) r e = putStrLn (concatMap show $ catMaybes $ map (findEntry e) xs) >> 
+execute ("print":xs) r e = (mapM_ print $ catMaybes $ map (findEntry e) xs) >> 
                            return (Just xs,e) -- to debug
 execute ["quit"] _ e = return (Nothing,e)
 execute ["version"] r e = putStrLn "hsbib: 0.1" >> return (Just [],e)
