@@ -24,6 +24,7 @@ import Data.Char
 
 main = do 
   args <- getArgs
+  putStrLn "hsbib 0.1 - type help if you need it"
   bibs  <- case args of
     [] -> (putStrLn "Warning no Bibtex files provided") >> return []
     _  -> liftM concat (mapM makeAbsParse args)
@@ -38,7 +39,6 @@ commands = [("help", "   -- show help", complete_none)
            ,("dump", "   -- dump entries to a file",complete_file)
            ,("load", "   -- load bibtex file",complete_file)
            ,("find", "   -- find documents",complete_none)
-           ,("version", "-- show version", complete_none)
            ,("quit", "   -- quit",  complete_none)]
 
 docOpen docs e = do

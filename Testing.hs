@@ -2,9 +2,9 @@ module Main where
 
 import Text.ParserCombinators.Parsec
 
-import BibParse
-import BibPrint
-import BibCFG
+import Parse
+import Print
+import CFG
 import Data.List
 import Maybe
 import Char

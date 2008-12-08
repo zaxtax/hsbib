@@ -1,4 +1,4 @@
-module BibCFG where
+module CFG where
 
 import Data.ConfigFile
 import System.Directory
@@ -6,7 +6,7 @@ import System.FilePath.Posix
 import Data.Either.Utils
 import System.FilePath
 
-defaultCFGFileName = "./bibconsolerc"
+defaultCFGFileName = "bibconsolerc"
 maxInterpolationDepth = 10
 cp = emptyCP { usedefault = False , accessfunc = interpolatingAccess maxInterpolationDepth }
 --ToDo:
@@ -38,8 +38,9 @@ getDocumentAssociations cp =
 
 
 lookupDocumentViewer :: [(String,String)]->FilePath->Maybe String
-lookupDocumentViewer das fp    =  case lookup fext das of
-                                         Just a  -> Just a
-                                         Nothing -> lookup "defaultviewer" das
-                                       where fext = takeExtension fp
+lookupDocumentViewer das fp = 
+    case lookup fext das of
+      Just a  -> Just a
+      Nothing -> lookup "defaultviewer" das
+    where fext = takeExtension fp
 
