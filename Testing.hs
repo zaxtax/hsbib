@@ -24,7 +24,7 @@ test2 file = do
   table <- test file
   print (doLookups table)  -- do something with the correctly parsed lookup table
 
-doLookups table = lookupKeyValue table "lecun-06" "src" 
+doLookups table = lookupKeyValue table "src" "lecun-06" 
 
 testPretty file = do 
   table <- test file
