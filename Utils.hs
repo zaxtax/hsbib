@@ -82,6 +82,8 @@ dumpToFile = undefined
 dropDups :: Entry -> Entry
 dropDups (Entry key fs) = Entry key (nubBy (\(a,_) (b,_) -> a==b) fs)
 
+-- Help Functions
+
 type Help =  (String,(String,String))
 
 noMore = "No additional help provided."

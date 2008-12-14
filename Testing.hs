@@ -1,48 +1,35 @@
 module Main where 
 
-import Text.ParserCombinators.Parsec
-
 import Parse
 import Print
+import Utils
 import CFG
+
+import System.Environment
 import Data.List
 import Maybe
 import Char
-import Input
+
+-- import Input
+
 main = do
-  test
-  --test2
-  testPretty
+  [args] <- getArgs
+  test args
+  test2 args
+  testPretty args
 
-test = parseFromFile bibfile "/home/javirosa/papers/papers.bib"
+test = parseIt
 
-{-test2 = do
-  parsed <- test
-  case parsed of 
-    Left err -> print err                   -- there was a parse error
-    Right table -> print (doLookups table)  -- do something with the correctly parsed lookup table
--}
-doLookups table = lookup "lecun-06" table >>= lookup "src" 
+test2 file = do
+  table <- test file
+  print (doLookups table)  -- do something with the correctly parsed lookup table
 
-testPretty = do 
-  out <- test
-  case out of
-    Left err ->  print err
-    Right table -> do putStr (foldr (++) "\n" (map show table))
+doLookups table = lookupKeyValue table "lecun-06" "src" 
 
-testGetEntry = do
-	out <- test
-	case out of
-		Left err -> print err
-		Right table -> printIE $ getIEntry table
-
-printIE entryM = do 
-	x <- entryM
-	print entryM
-	return ()
-	
-	
-								
+testPretty file = do 
+  table <- test file
+  putStr (foldr (++) "\n" (map show table))
+						
 {-
 testCFG = do
    l <- loadDefaultCFGFile
@@ -54,14 +41,10 @@ testCFG = do
 	1
 -}
 test3 file = do
-  parsed <-  parseFromFile bibfile file
-  case parsed of
-    Left err -> print err
-    Right table -> print table
+  table <-  parseIt file
+  print table
 
 test4 file = do
-  parsed <- test
-  case parsed of
-    Left err -> print err >> return 0
-    Right table -> return $ length table
+  table <- test file
+  return $ length table
 
