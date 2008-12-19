@@ -25,21 +25,14 @@ printEntry (k:title:_) = concat ["(",k,")\n  Title: ",title]
 
 removeQuotes :: String -> String
 removeQuotes = filter (/= '\"')
---Given "a "b c" d" returns ["a","b c", d]
-----Use that take thingy
-splitLine [] = []
-splitLine (c:cs) | isSpace c = splitLine cs
-                 | c == '"' = (beforeq : splitLine afterq) 
-                 | True     = (beforew: splitLine afterw)
-   where (beforeq, _, afterq) = splitWhen (\c' -> c' == '"') cs 
-         (beforew, _, afterw) = splitWhen isSpace (c:cs)
 
-splitWhen :: (a -> Bool) -> [a] -> ([a],a,[a])
-splitWhen f l   = (before, at , after)
-   where before = takeWhile (not.f) l
-         sortOfAfter = dropWhile (not.f) l
-         after  = if null sortOfAfter then sortOfAfter else tail sortOfAfter
-         at     = head $ dropWhile (not.f) l  --Is ghc smart enough?
+splitLine [] = []
+splitLine (c:cs) | isSpace c   = splitLine cs
+                 | c == '"'    = (beforeq : splitLine afterq) 
+                 | otherwise   = (beforew : splitLine afterw)
+   where afterq             = if null rest then [] else tail rest
+         (beforeq, rest)    = break (\c' -> c' == '"') cs 
+         (beforew, afterw)  = span (not.isSpace) (c:cs)
 
 findEntry :: [Entry] -> Key -> Maybe Entry
 findEntry t k = find (\ (Entry key _) -> (map toLower key) == map toLower k) t
