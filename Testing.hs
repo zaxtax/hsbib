@@ -3,7 +3,7 @@ module Main where
 import Parse
 import Print
 import Utils
-import CFG
+import Cfg
 
 import System.Environment
 import Data.List

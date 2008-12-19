@@ -1,4 +1,4 @@
-module CFG where
+module Cfg where
 
 import Data.ConfigFile
 import System.Directory
