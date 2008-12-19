@@ -28,7 +28,7 @@ removeQuotes = filter (/= '\"')
 --Given "a "b c" d" returns ["a","b c", d]
 ----Use that take thingy
 splitLine [] = []
-splitLine (c:cs) | c == ' ' = splitLine cs
+splitLine (c:cs) | isSpace c = splitLine cs
                  | c == '"' = (beforeq : splitLine afterq) 
                  | True     = (beforew: splitLine afterw)
    where (beforeq, _, afterq) = splitWhen (\c' -> c' == '"') cs 
