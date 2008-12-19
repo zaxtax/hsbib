@@ -33,12 +33,8 @@ splitLine (c:cs) | isSpace c = splitLine cs
                  | True     = (beforew: splitLine afterw)
    where (beforeq, _, afterq) = splitWhen (\c' -> c' == '"') cs 
          (beforew, _, afterw) = splitWhen isSpace (c:cs)
-{-
-splitLine x  = y : splitLine ys 
-    where [(y,ys)] = lex x
--}
 
-splitWhen :: (a->Bool)->[a] -> ([a],a,[a])
+splitWhen :: (a -> Bool) -> [a] -> ([a],a,[a])
 splitWhen f l   = (before, at , after)
    where before = takeWhile (not.f) l
          sortOfAfter = dropWhile (not.f) l

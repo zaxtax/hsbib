@@ -10,8 +10,6 @@ import Data.List
 import Maybe
 import Char
 
--- import Input
-
 main = do
   [args] <- getArgs
   test args
