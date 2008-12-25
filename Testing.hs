@@ -3,7 +3,7 @@ module Main where
 import Parse
 import Print
 import Utils
-import CFG
+import Cfg
 
 import System.Environment
 import Data.List
@@ -14,7 +14,8 @@ main = do
   [args] <- getArgs
   test args
   test2 args
-  testPretty args
+  -- testPretty args
+  testCFG
 
 test = parseIt
 
@@ -28,16 +29,14 @@ testPretty file = do
   table <- test file
   putStr (foldr (++) "\n" (map show table))
 						
-{-
 testCFG = do
    l <- loadDefaultCFGFile
-	let g = getDocumentAssociations l
-	print g
-	print lookupDocumentViewer g "foo.pdf"
-	print lookupDocumentViewer g "foo.noextensionmatches"
-   putStr "testCFGDone"
-	1
--}
+   g <- return $ getDocumentAssociations l
+   print g
+   print $ lookupDocumentViewer g "foo.pdf"
+   print $ lookupDocumentViewer g "foo.noextensionmatches"
+   putStrLn "testCFGDone"
+
 test3 file = do
   table <-  parseIt file
   print table

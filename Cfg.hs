@@ -1,4 +1,4 @@
-module CFG where
+module Cfg where
 
 import Data.ConfigFile
 import System.Directory
@@ -23,9 +23,8 @@ cp = emptyCP { usedefault = False , accessfunc = interpolatingAccess maxInterpol
 --then load defaultCFGData
 loadDefaultCFGFile = do
    cdir <- getCurrentDirectory 
-   val  <- readfile cp (cdir </> defaultCFGFileName) 
-   let cfgFile = forceEither val
-   return cfgFile
+   cfgFile  <- readfile cp (cdir </> defaultCFGFileName) 
+   return $ forceEither cfgFile
 
 getBibFilePaths :: ConfigParser -> [String]
 getBibFilePaths cp = map snd $ forceEither $ items cp "bibfiles"
@@ -33,8 +32,8 @@ getBibFilePaths cp = map snd $ forceEither $ items cp "bibfiles"
 getDocumentAssociations :: ConfigParser -> [(String,String)]
 getDocumentAssociations cp = 
    zip extensions viewers
-   where extensions = filter (\x -> (head x /= '\'' )) $ forceEither $ options cp "file_assoc" --exludes the substitute vars which start with '
-         viewers    =  map (\x -> forceEither $  get cp "file_assoc" x)  extensions
+   where extensions = filter ((/= '\'').head) $ forceEither $ options cp "file_assoc" --exludes the substitute vars which start with '
+         viewers    =  map (forceEither . get cp "file_assoc")  extensions
 
 
 lookupDocumentViewer :: [(String,String)]->FilePath->Maybe String
