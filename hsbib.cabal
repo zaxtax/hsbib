@@ -14,5 +14,5 @@ executable:          hsbib
 build-depends:       base >= 3, MissingH, parsec >= 3.0, 
                      filepath, directory, process, readline
 main-is:             Console.hs
-other-modules:       Parse, Print, Utils
+other-modules:       Parse, Print, Utils, Cfg
 
