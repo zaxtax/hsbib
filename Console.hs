@@ -30,7 +30,7 @@ main = do
     _  -> liftM concat (mapM makeAbsParse args)
   initialize
   setAttemptedCompletionFunction (Just $ setupCompleter (dynamicDescrs bibs++commands))
-  catchIO $ repl (Just []) bibs
+  repl (Just []) bibs
   resetTerminal Nothing
 
 commands :: [CommandDescr]
@@ -81,8 +81,6 @@ makeAbsField abDir e =
 -- getCurrentDirectory
 
 -- Most of these functions cribbed from readline reference
-catchIO :: IO () -> IO ()
-catchIO = handle (hPrint stderr)
 
 type Completer = String -> IO [String]
 type CommandDescr = (String, String, String -> IO [String])
