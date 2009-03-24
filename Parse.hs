@@ -45,7 +45,7 @@ fval s = do
      
 field :: Parser (String,String)
 field  = do 
-  key <- many1 (alphaNum <|> oneOf "/_:-?")
+  key <- many1 (alphaNum <|> oneOf "/+_:-?")
   skipMany space
   char '='; skipMany space
   val <- fval ",}"
@@ -53,7 +53,7 @@ field  = do
 
 fields :: Parser (String,[Field])
 fields = do 
-  key <- many1 (alphaNum <|> oneOf "/_:.?-")
+  key <- many1 (alphaNum <|> oneOf "/+_:.?-")
   white; char ','; white
   rest <- sepEndBy field (do white; string ","; white)
   return (key,rest)

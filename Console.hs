@@ -26,11 +26,11 @@ main = do
   args <- getArgs
   putStrLn "hsbib 0.1 - type help for commands"
   bibs  <- case args of
-    [] -> (putStrLn "Warning no Bibtex files provided") >> return []
+    [] -> putStrLn "Warning no Bibtex files provided" >> return []
     _  -> liftM concat (mapM makeAbsParse args)
   initialize
   setAttemptedCompletionFunction (Just $ setupCompleter (dynamicDescrs bibs++commands))
-  repl (Just []) bibs
+  catchIO $ repl (Just []) bibs
   resetTerminal Nothing
 
 commands :: [CommandDescr]
@@ -41,14 +41,14 @@ commands = [("help", "   -- show help", complete_cmds)
            ,("find", "   -- find documents",complete_none)
            ,("quit", "   -- quit",  complete_none)]
 
-docOpen docs e = do
+docOpen docs e =
   mapM (\ x-> runCommand ("gv " ++ escapeRe x )) 
        (catMaybes $ map (lookupKeyValue e "src") docs)
     
                  
 
 search :: [String] -> [Entry] -> [[String]]
-search s e = map displayEntry $ filter (blend s . (map toLower) . show) e   -- (or . map InfixOf
+search s e = map displayEntry $ filter (blend s . map toLower . show) e   -- (or . map InfixOf
              where blend []   _ = False
                    blend (q:qx) e | isInfixOf q e = True
                                   | otherwise = blend qx e
@@ -81,12 +81,14 @@ makeAbsField abDir e =
 -- getCurrentDirectory
 
 -- Most of these functions cribbed from readline reference
+catchIO :: IO () -> IO ()
+catchIO = handle (hPrint stderr :: Exception -> IO () )
 
 type Completer = String -> IO [String]
 type CommandDescr = (String, String, String -> IO [String])
 
 usageInfo :: [CommandDescr] -> String
-usageInfo cmds = unlines $ [printf "%s %s" n d | (n, d, _) <- cmds]
+usageInfo cmds = unlines [printf "%s %s" n d | (n, d, _) <- cmds]
 
 completer comps defcomp w _ _ = do
     -- Get the entire input line so far
@@ -131,7 +133,7 @@ getInput = do
         Just xs -> addHistory xs >> return (Just xs)
 
 handleInput :: String -> Maybe [String] -> [Entry] -> IO (Maybe [String],[Entry])
-handleInput = execute . (map removeQuotes) . splitLine . strip  
+handleInput = execute . map removeQuotes . splitLine . strip  
 
 repl :: Maybe [String] -> [Entry] -> IO ()
 repl Nothing _ = return ()
@@ -155,5 +157,5 @@ execute ("print":xs) r e = (mapM_ print $ catMaybes $ map (findEntry e) xs) >>
                            return (Just xs,e) -- to debug
 execute ["quit"] _ e = return (Nothing,e)
 execute ["version"] r e = putStrLn "hsbib: 0.1" >> return (Just [],e)
-execute ["list"] _ e = putStrLn (show $ length e) >> return (Just [],e) -- to debug
+execute ["list"] _ e = print (length e) >> return (Just [],e) -- to debug
 execute debug r e = putStr (concatMap id $ ":":debug++[":\n"]) >> return (Just [],e)

@@ -37,9 +37,7 @@ testCFG = do
    print $ lookupDocumentViewer g "foo.noextensionmatches"
    putStrLn "testCFGDone"
 
-test3 file = do
-  table <-  parseIt file
-  print table
+test3 file = parseIt file >>= print
 
 test4 file = do
   table <- test file
