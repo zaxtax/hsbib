@@ -12,7 +12,7 @@ Cabal-Version: >= 1.2
 
 executable:          hsbib
 build-depends:       base >= 3, MissingH, parsec >= 3.0, 
-                     filepath, directory, process, readline
+                     filepath, directory, process, readline, hint
 main-is:             Console.hs
 other-modules:       Parse, Print, Utils, Cfg
 
