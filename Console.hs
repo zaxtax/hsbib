@@ -2,6 +2,7 @@
 module Main where
 
 import Data.List (isInfixOf, isPrefixOf, transpose)
+import Data.Char
 import Control.Monad
 -- import Control.Monad.State -- we should use this at point
 import System.Console.Readline hiding (Entry)
@@ -16,17 +17,21 @@ import System.Process
 import System.Directory
 import System.FilePath
 
+import Cfg
 import Parse
 import Print
 import Utils
 import Data.String.Utils
-import Data.Char
 
 main = do 
   args <- getArgs
   putStrLn "hsbib 0.1 - type help for commands"
   bibs  <- case args of
-    [] -> putStrLn "Warning no Bibtex files provided" >> return []
+    [] -> do 
+         putStrLn "Warning no Bibtex files provided"
+         cfg <- getCfg
+         home <- getHomeDirectory
+         liftM concat (mapM makeAbsParse $ map (replace "~" home) $ files cfg)
     _  -> liftM concat (mapM makeAbsParse args)
   initialize
   setAttemptedCompletionFunction (Just $ setupCompleter (dynamicDescrs bibs++commands))
@@ -82,7 +87,7 @@ makeAbsField abDir e =
 
 -- Most of these functions cribbed from readline reference
 catchIO :: IO () -> IO ()
-catchIO = handle (hPrint stderr :: Exception -> IO () )
+catchIO = handle (hPrint stderr :: IOException -> IO ())
 
 type Completer = String -> IO [String]
 type CommandDescr = (String, String, String -> IO [String])
