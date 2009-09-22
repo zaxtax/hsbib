@@ -87,7 +87,7 @@ makeAbsField abDir e =
 
 -- Most of these functions cribbed from readline reference
 catchIO :: IO () -> IO ()
-catchIO = handle (hPrint stderr :: IOException -> IO ())
+catchIO = handle (hPrint stderr :: Exception -> IO ())
 
 type Completer = String -> IO [String]
 type CommandDescr = (String, String, String -> IO [String])

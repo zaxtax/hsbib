@@ -2,6 +2,9 @@ module Cfg where
 
 import Data.Maybe
 import Data.List
+import System.IO.Unsafe( unsafePerformIO )
+import System.Path
+import System.Directory
 import Language.Haskell.Interpreter
 
 data Cfg = Cfg {files :: [String], views :: [(String,String)]} deriving (Show)
@@ -23,7 +26,8 @@ fromEither a v =
 
 makeCfg :: Interpreter Cfg
 makeCfg = do
-  loadModules ["/home/cf/.hsbib/config.hs"]
+  let home = unsafePerformIO getHomeDirectory
+  loadModules [fromMaybe "" (absNormPath home ".hsbib/config.hs")]
   exports <- getModuleExports "UserConfig"
   setTopLevelModules ["UserConfig"]
   setImportsQ [("Prelude", Nothing)]
@@ -35,12 +39,7 @@ makeCfg = do
   viewVal <- mkVal views "views" setFields (as :: [(String,String)]) -- (3)
   return Cfg {files=fileVal,views=viewVal} -- (4)
 
--- main :: IO ()
--- main = do
---   s <- getCfg
---   print s
-
+getCfg :: IO Cfg
 getCfg = do 
   r <- runInterpreter makeCfg
   return $ fromEither defaultCfg r
-
