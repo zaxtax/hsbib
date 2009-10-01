@@ -2,7 +2,6 @@ module Cfg where
 
 import Data.Maybe
 import Data.List
-import System.IO.Unsafe( unsafePerformIO )
 import System.Path
 import System.Directory
 import Language.Haskell.Interpreter
@@ -20,13 +19,11 @@ fromEither a v =
 
 
 --ToDo:
--- fallback to home directory ".bibconsole"
 -- refactor so adding Cfg fields is easier
 --   now must add
 
-makeCfg :: Interpreter Cfg
-makeCfg = do
-  let home = unsafePerformIO getHomeDirectory
+makeCfg :: FilePath -> Interpreter Cfg
+makeCfg home = do
   loadModules [fromMaybe "" (absNormPath home ".hsbib/config.hs")]
   exports <- getModuleExports "UserConfig"
   setTopLevelModules ["UserConfig"]
@@ -40,6 +37,7 @@ makeCfg = do
   return Cfg {files=fileVal,views=viewVal} -- (4)
 
 getCfg :: IO Cfg
-getCfg = do 
-  r <- runInterpreter makeCfg
+getCfg = do
+  home <- getHomeDirectory
+  r <- runInterpreter (makeCfg home)
   return $ fromEither defaultCfg r
